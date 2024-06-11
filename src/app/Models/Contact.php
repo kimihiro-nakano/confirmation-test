@@ -26,20 +26,53 @@ class Contact extends Model
             2 => '女性',
             3 => 'その他',
         ];
-        return $genderLabels[$this->attributes['gender']];
+        // return $genderLabels[$this->attributes['gender']];
+        // return $genderLabels[$this->gender];
+        return $genderLabels[$this->gender] ?? '不明';
     }
 
-    public function scopeNameEmailSearch($query, $request)
+    public function scopeKeywordSearch($query, $keyword)
     {
-        if (!empty($request->name)) {
-            $query->where('first_name', 'like', '%' . $request->name . '%')
-                ->orWhere('last_name', 'like', '%' . $request->name . '%');
+        if (!empty($keyword)) {
+            $query->where(function($q) use ($keyword) {
+                $q->where('first_name', 'like', '%' . $keyword . '%')
+                    ->orWhere('last_name', 'like', '%' . $keyword . '%')
+                    ->orWhere('email', 'like', '%' . $keyword . '%');
+            });
         }
-        if (!empty($request->email)) {
-            $query->where('email', 'like', '%' . $request->email . '%');
-        }
-
         return $query;
+    }
+
+    public function scopeGenderFilter($query, $gender)
+    {
+        if (!empty($gender) && $gender !== 'all') {
+            $genderMap = ['male' => 1, 'female' => 2, 'other' => 3];
+            if (array_key_exists($gender, $genderMap)) {
+                $query->where('gender', $genderMap[$gender]);
+            }
+        }
+        return $query;
+    }
+
+    public function scopeCategoryFilter($query, $categoryId)
+    {
+        if (!empty($categoryId)) {
+            $query->where('category_id', $categoryId);
+        }
+        return $query;
+    }
+
+    public function scopeDateFilter($query, $date)
+    {
+        if (!empty($date)) {
+            $query->whereDate('created_at', $date);
+        }
+        return $query;
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
 
 }
