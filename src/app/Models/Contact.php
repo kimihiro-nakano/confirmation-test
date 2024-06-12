@@ -31,43 +31,32 @@ class Contact extends Model
         return $genderLabels[$this->gender] ?? '不明';
     }
 
-    public function scopeKeywordSearch($query, $keyword)
+    public function scopeSearch($query, $keyword, $exactMatch, $gender, $categoryId, $date)
     {
-        if (!empty($keyword)) {
-            $query->where(function($q) use ($keyword) {
-                $q->where('first_name', 'like', '%' . $keyword . '%')
-                    ->orWhere('last_name', 'like', '%' . $keyword . '%')
-                    ->orWhere('email', 'like', '%' . $keyword . '%');
-            });
-        }
-        return $query;
-    }
-
-    public function scopeGenderFilter($query, $gender)
-    {
-        if (!empty($gender) && $gender !== 'all') {
-            $genderMap = ['male' => 1, 'female' => 2, 'other' => 3];
-            if (array_key_exists($gender, $genderMap)) {
-                $query->where('gender', $genderMap[$gender]);
+        return $query->when($keyword, function ($query, $keyword) use ($exactMatch) {
+            if ($exactMatch) {
+                return $query->where(function ($q) use ($keyword) {
+                    $q->where('first_name', 'like', "%{$keyword}%")
+                        ->orWhere('last_name', 'like', "%{$keyword}%")
+                        ->orWhere('email', 'like', "%{$keyword}%");
+                });
+            } else {
+                return $query->where(function ($q) use ($keyword) {
+                    $q->where('first_name', 'like', "%{$keyword}%")
+                        ->orWhere('last_name', 'like', "%{$keyword}%")
+                        ->orWhere('email', 'like', "%{$keyword}%");
+                });
             }
-        }
-        return $query;
-    }
-
-    public function scopeCategoryFilter($query, $categoryId)
-    {
-        if (!empty($categoryId)) {
-            $query->where('category_id', $categoryId);
-        }
-        return $query;
-    }
-
-    public function scopeDateFilter($query, $date)
-    {
-        if (!empty($date)) {
-            $query->whereDate('created_at', $date);
-        }
-        return $query;
+        })
+        ->when($gender !== 'all', function ($query) use ($gender) {
+            return $query->where('gender', $gender);
+        })
+        ->when($categoryId, function ($query) use ($categoryId) {
+            return $query->where('category_id', $categoryId);
+        })
+        ->when($date, function ($query) use ($date) {
+            return $query->whereDate('created_at', $date);
+        });
     }
 
     public function category()
