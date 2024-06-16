@@ -26,20 +26,42 @@ class Contact extends Model
             2 => '女性',
             3 => 'その他',
         ];
-        return $genderLabels[$this->attributes['gender']];
+        // return $genderLabels[$this->attributes['gender']];
+        // return $genderLabels[$this->gender];
+        return $genderLabels[$this->gender] ?? '不明';
     }
 
-    public function scopeNameEmailSearch($query, $request)
+    public function scopeSearch($query, $keyword, $exactMatch, $gender, $categoryId, $date)
     {
-        if (!empty($request->name)) {
-            $query->where('first_name', 'like', '%' . $request->name . '%')
-                ->orWhere('last_name', 'like', '%' . $request->name . '%');
-        }
-        if (!empty($request->email)) {
-            $query->where('email', 'like', '%' . $request->email . '%');
-        }
+        return $query->when($keyword, function ($query, $keyword) use ($exactMatch) {
+            if ($exactMatch) {
+                return $query->where(function ($q) use ($keyword) {
+                    $q->where('first_name', 'like', "%{$keyword}%")
+                        ->orWhere('last_name', 'like', "%{$keyword}%")
+                        ->orWhere('email', 'like', "%{$keyword}%");
+                });
+            } else {
+                return $query->where(function ($q) use ($keyword) {
+                    $q->where('first_name', 'like', "%{$keyword}%")
+                        ->orWhere('last_name', 'like', "%{$keyword}%")
+                        ->orWhere('email', 'like', "%{$keyword}%");
+                });
+            }
+        })
+        ->when($gender !== 'all', function ($query) use ($gender) {
+            return $query->where('gender', $gender);
+        })
+        ->when($categoryId, function ($query) use ($categoryId) {
+            return $query->where('category_id', $categoryId);
+        })
+        ->when($date, function ($query) use ($date) {
+            return $query->whereDate('created_at', $date);
+        });
+    }
 
-        return $query;
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
 
 }

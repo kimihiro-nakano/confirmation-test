@@ -18,14 +18,14 @@ use Inertia\Inertia;
 |
 */
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-});
+// Route::get('/', function () {
+//     return Inertia::render('Welcome', [
+//         'canLogin' => Route::has('login'),
+//         'canRegister' => Route::has('register'),
+//         'laravelVersion' => Application::VERSION,
+//         'phpVersion' => PHP_VERSION,
+//     ]);
+// });
 
 Route::middleware([
     'auth:sanctum',
@@ -48,9 +48,10 @@ Route::middleware('guest')->group(function () {
 
 
 Route::middleware('auth')->group(function () {
-
     Route::get('/admin', [CategoryController::class, 'showAdmin'])->name('admin');
     Route::get('/admin/search', [CategoryController::class, 'search'])->name('admin.search');
+    Route::get('/admin/reset', [CategoryController::class, 'reset'])->name('admin.reset');
+    Route::post('/admin/export', [CategoryController::class, 'export'])->name('admin.export');
     Route::post('/logout', [UserController::class, 'logout'])->name('logout');
-    Route::delete('/admin', [CategoryController::class, 'destroy']);
+    Route::delete('/admin/delete', [CategoryController::class, 'destroy'])->name('admin.destroy');
 });
