@@ -21,7 +21,7 @@
         @csrf
         <div class="login-form__group">
             <div class="login-form__group-title">
-                <span class="form__label--item">メールアドレス</span>
+                <span class="form__label--item">メールアドレスaaaaaa</span>
             </div>
             <div class="login-form__group-content">
                 <div class="login-form__input--text">
@@ -52,7 +52,6 @@
         <div class="login-form__button">
             <button class="login-form__button-submit" type="submit">ログイン</button>
         </div>
-</div>
-</form>
+    </form>
 </div>
 @endsection

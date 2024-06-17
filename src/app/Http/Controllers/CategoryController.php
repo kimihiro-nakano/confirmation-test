@@ -19,7 +19,7 @@ class CategoryController extends Controller
         $categoryId = null;
         $date = null;
         $exactMatch = false;
-        return view('admin', compact('contacts', 'categories', 'keyword', 'gender', 'categoryId', 'date', 'exactMatch'));
+        return view('admin', compact('contacts', 'categories','keyword', 'gender', 'categoryId', 'date', 'exactMatch'));
     }
 
     public function search(SearchRequest $request)
@@ -30,7 +30,7 @@ class CategoryController extends Controller
         $categoryId = $request->input('category_id');
         $date = $request->input('date');
 
-        dd($keyword, $gender, $categoryId, $date);
+        // dd($keyword, $gender, $categoryId, $date);
 
         // $contactsQuery = Contact::when($keyword, function ($query, $keyword) use ($exactMatch) {
         //     if ($exactMatch) {
@@ -67,7 +67,7 @@ class CategoryController extends Controller
 
         $categories = Category::all();
 
-        return view('admin', compact('contacts', 'categories', 'keyword', 'gender', 'categoryId', 'date', 'exactMatch'));
+        return view('admin', compact('contacts', 'categories','keyword', 'gender', 'categoryId', 'date', 'exactMatch'));
     }
 
     public function reset()
